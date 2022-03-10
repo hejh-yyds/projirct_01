@@ -1,0 +1,39 @@
+.clear-backend>input.tab-1:checked~.tab-content .tab-item-1 {
+    display: block;
+}
+
+.clear-backend>input.tab-2:checked~.tab-content .tab-item-2 {
+    display: block;
+}
+
+.clear-backend>input.tab-3:checked~.tab-content .tab-item-3 {
+    display: block;
+}
+
+.clear-backend>input.tab-4:checked~.tab-content .tab-item-4 {
+    display: block;
+}
+
+.clear-backend>input.tab-5:checked~.tab-content .tab-item-5 {
+    display: block;
+}
+
+.clear-backend>input.tab-6:checked~.tab-content .tab-item-6 {
+    display: block;
+}
+
+.clear-backend>input.tab-7:checked~.tab-content .tab-item-7 {
+    display: block;
+}
+
+.clear-backend>input.tab-8:checked~.tab-content .tab-item-8 {
+    display: block;
+}
+
+.clear-backend>input.tab-9:checked~.tab-content .tab-item-9 {
+    display: block;
+}
+
+.clear-backend>input.tab-10:checked~.tab-content .tab-item-10 {
+    display: block;
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./lib/bootstrap.css">
+    <link rel="stylesheet" href="./css/图示管理.css">
+    <script src="./lib/jquery.js"></script>
+</head>
+
+<body>
+
+    <!-- 添加图书标题 -->
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">添加新图书</h3>
+        </div>
+
+        <!-- 添加图书的内容 -->
+        <div class="panel-body ">
+
+            <div class="input-group">
+                <span class="input-group-addon" id="sizing-addon2">图书名称</span>
+                <input type="text" class="form-control" placeholder="书名" aria-describedby="sizing-addon2">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon" id="sizing-addon2">作者</span>
+                <input type="text" class="form-control" placeholder="作者" aria-describedby="sizing-addon2">
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon" id="sizing-addon2">出版社</span>
+                <input type="text" class="form-control" placeholder="出版社" aria-describedby="sizing-addon2">
+            </div>
+
+
+            <button type="button" class="btn btn-primary">  添加  </button>
+
+
+        </div>
+
+
+        <!-- 表格区域 -->
+        <div class="container">
+            <table class="table table-hover table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>图书名称</th>
+                        <th>作者</th>
+                        <th>出版社</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- <tr>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>4</td>
+                    </tr> -->
+                </tbody>
+            </table>
+        </div>
+
+
+
+    </div>
+
+    <script>
+        $(function() {
+            // 根据id查询
+            var id1;
+            // 存储客户端的数据
+            var books = {};
+            getBookOnClient(id1, books);
+
+            //在服务器上获取书籍,有id，选择某一个，无id，选择多个
+            function getBookOnServer(id1, books) {
+                console.log(id1);
+                $.get("http://www.liulongbin.top:3006/api/getbooks", {
+                    id: id1
+                }, function(res) {
+                    $.extend(true, books, res);
+
+                    getBook(books);
+                })
+            }
+
+            // 在本地获取书籍信息
+            function getBookOnClient(id1, books) {
+                var b = $.isEmptyObject(books);
+
+                if (b) {
+                    getBookOnServer(id1, books);
+                    // console.log(1);
+                } else {
+                    getBook(books);
+                    // console.log(2);
+                }
+
+            }
+
+            // 本地获取书籍
+            function getBook(books) {
+                $(".table tbody").html("");
+                var aData = [];
+                aData = books.data;
+                aData.sort(function(a1, b1) {
+                    return b1.id - a1.id;
+                });
+                // console.log(aData);
+
+                /* 
+                
+                    这里可以采用字符串拼接的方式生成标签
+
+                */
+                for (var i = 0; i < aData.length; i++) {
+                    var td1 = $("<td>" + aData[i].id + "</td>");
+                    var td2 = $("<td>" + aData[i].bookname + "</td>");
+                    var td3 = $("<td>" + aData[i].author + "</td>");
+                    var td4 = $("<td>" + aData[i].publisher + "</td>");
+                    var td5 = $("<td><a href='javascript:;' id='" + i + "'>删除</a></td>");
+
+                    var tr = $("<tr></tr>");
+                    tr.append(td1).append(td2).append(td3).append(td4).append(td5);
+
+                    $(".table tbody").prepend(tr);
+
+                }
+            }
+
+
+            // 表单添加书籍
+            $(".btn").on("click", function() {
+                var num = 0;
+                $(".input-group input").each(function(index, ele) {
+                    if ($(ele).val() !== "") {
+                        num++;
+                    } else {
+                        alert("请输入完整的信息")
+                        return false;
+                    }
+                })
+
+                if (num === 3) {
+                    addBook($(".input-group").eq(0).children("input").val(), $(".input-group").eq(1).children("input").val(), $(".input-group").eq(2).children("input").val())
+                        // console.log(num);
+                        // console.log($(".input-group input").eq(0).val());
+                }
+            })
+
+
+
+            // 添加书籍到服务器
+            function addBook(bookname1, author1, publisher1) {
+                $.post("http://www.liulongbin.top:3006/api/addBook", {
+                    bookname: bookname1,
+                    author: author1,
+                    publisher: publisher1
+                }, function(res) {
+
+                    // console.log(books);
+                    // console.log(res);
+                    if (res.status == 201) {
+                        alert("添加图书成功");
+                        var length = books.data.length;
+                        console.log(length);
+                        var obj = {
+                            id: length + 1,
+                            bookname: bookname1,
+                            author: author1,
+                            publisher: publisher1
+                        }
+                        books.data.push(obj);
+                        getBook(books);
+
+                        // books.data.push(obj);
+                        // getBook(books);
+                    } else if (res.status == 502) {
+                        alert("添加图书失败");
+                    }
+
+                })
+            }
+
+            // 在本地删除书籍
+            $(".table tbody").on("click", "tr td a", function() {
+                var index = $(this).attr("id");
+                console.log(index);
+                delBook(books, index);
+            })
+
+            function delBook(books, index) {
+                books.data.splice(index, 1);
+                getBook(books)
+            }
+
+            console.log(books);
+        })
+    </script>
+
+</body>
+
+</html>
